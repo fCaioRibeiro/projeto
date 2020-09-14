@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="../bibliotecas/bootstrap.min.css">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+        <link id="logoTitle" rel="shortcut icon" type="image/x-icon" />
+        <style>
+            body:not(.modal-open){
+                padding-right: 0px !important;
+            }
+
+            body {
+                display: flex;
+                min-height: 100vh;
+                flex-direction: column;
+                /* background-color: #d8eaf5; */
+            }
+
+            main {
+                flex: 1 0 auto;
+            }
+        </style>
+        <title></title>
+    </head>
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand nomeEmpresa">
+                
+            </a>
+        
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="nav navbar-nav">
+
+                    <li class="nav-item">
+                        <a class="nav-link" id="v-pills-dashboard-tab" data-toggle="pill" href="#v-pills-dashboard" role="tab" aria-controls="v-pills-dashboard" aria-selected="true">
+                            <i class="fas fa-chart-line"></i> Dashboard
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link active" id="v-pills-comandas-tab" data-toggle="pill" href="#v-pills-comandas" role="tab" aria-controls="v-pills-comandas" aria-selected="false">
+                            <i class="fas fa-receipt"></i> Comandas <span class="badge badge-danger quantidade-linhas"></span>
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" id="v-pills-itens-tab" data-toggle="pill" href="#v-pills-itens" role="tab" aria-controls="v-pills-itens" aria-selected="false">
+                            <i class="fas fa-book-open"></i> Cardápio
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link text-danger sair" href="#" role="tab" aria-selected="false" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i> Sair
+                        </a>
+                    </li>
+
+                </ul>
+            </div>
+        </nav>
+    </header>
+    <main class="my-5">
+
+        <div class="tab-content" id="v-pills-tabContent">
+
+            <div class="tab-pane fade" id="v-pills-dashboard" role="tabpanel" aria-labelledby="v-pills-dashboard-tab">
+                <div class="row container-fluid mx-auto" id="verDashboard">
+                    <div class="spinner-border text-danger" style="top:300px; right: 50%; position:absolute;" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade show active" id="v-pills-comandas" role="tabpanel" aria-labelledby="v-pills-comandas-tab">
+                <div class="row container-fluid mx-auto" id="verComanda">
+                    <div class="spinner-border text-danger" style="top:300px; right: 50%; position:absolute;" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="v-pills-itens" role="tabpanel" aria-labelledby="v-pills-itens-tab">
+                <div class="row container-fluid mx-auto" id="verItens">
+                    <div class="spinner-border text-danger" style="top:300px; right: 50%; position:absolute;" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <a type="button" target="_blank" onclick="copiarLink(this)" class="btn fixed-bottom mb-5 ml-3" style="font-size: 30px; width: 50px;"><i class="fab fa-whatsapp text-success"></i></a>
+        <input type="text" class="fade" style="height: 1px; width: 100%;" id="linkPedido" disabled>
+    </main>
+
+    <footer class="d-flex justify-content-center bg-dark text-white fixed-bottom">
+        <small>Versão: 2.0</small>
+    </footer>
+
+    <script src="../bibliotecas/jquery.min.js"></script>
+    <script src="../bibliotecas/bootstrap.min.js"></script>
+    <script src="../socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <script src="https://momentjs.com/downloads/moment-with-locales.js"></script>
+    <script src="../bibliotecas/storage.js"></script>
+    <script src="../js/beep.js"></script>
+    <script>
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            onOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        })
+
+        const listaComandas = new Storage({
+            st: localStorage,
+            key: 'ltC',
+            onChange: function (st) {
+                showLista(st.vl)
+            },
+            onFetch: async () => {
+                return await $.ajax({
+                    url: linkApi+'/order/list',
+                    type: 'GET',
+                    headers: {
+                        'x-access-token': token
+                    },
+                });
+            }
+        });
+
+        const listaItens = new Storage({
+            st: localStorage,
+            key: 'ltI',
+            onChange: function (st) {
+                showListaItem(st.vl)
+            },
+            onFetch: async () => {
+                return await $.ajax({
+                    url: linkApi+'/item/list',
+                    type: 'GET',
+                    headers: {
+                        'x-access-token': token
+                    },
+                });
+            }
+        });
+
+        const listaAdicionais = new Storage({
+            st: localStorage,
+            key: 'ltA',
+            onChange: function (st) {
+                
+            },
+            onFetch: async () => {
+                return await $.ajax({
+                    url: linkApi+'/additional/list',
+                    type: 'GET',
+                    headers: {
+                        'x-access-token': token
+                    },
+                });
+            }
+        });
+
+        const listaBordas = new Storage({
+            st: localStorage,
+            key: 'ltB',
+            onChange: function (st) {
+                
+            },
+            onFetch: async () => {
+                return await $.ajax({
+                    url: linkApi+'/edges/list',
+                    type: 'GET',
+                    headers: {
+                        'x-access-token': token
+                    },
+                });
+            }
+        });
+
+        const listaCategorias = new Storage({
+            st: localStorage,
+            key: 'ltCT',
+            onChange: function (st) {
+                showCategoriasItem(st.vl)
+            },
+            onFetch: async () => {
+                return await $.ajax({
+                    url: linkApi+'/category/list',
+                    type: 'GET',
+                    headers: {
+                        'x-access-token': token
+                    },
+                });
+            }
+        });
+
+        const listaTamanhos = new Storage({
+            st: localStorage,
+            key: 'ltS',
+            onChange: function (st) {
+                showListaTamanhos(st.vl)
+            },
+            onFetch: async () => {
+                return await $.ajax({
+                    url: linkApi+'/sizes/list',
+                    type: 'GET',
+                    headers: {
+                        'x-access-token': token
+                    },
+                });
+            }
+        });
+
+        const dadosEmpresa = new Storage({
+            st: localStorage,
+            key: 'dEmp',
+            onChange: function (st) {
+                carregaDadosEmpresa(st.vl)
+            },
+            onFetch: async () => {
+                return await $.ajax({
+                    url: linkApi+'/company/get',
+                    type: 'GET',
+                    headers: {
+                        'x-access-token': token
+                    },
+                });
+            }
+        });
+
+        function copiarLink(a) {
+            $(a).attr('href', `https://wa.me/?text=Faça%20seu%20pedido%20através%20do%20link:%20${linkApi}/view/pedidoCliente/pedidoCliente.html`)
+
+            Toast.fire({
+                icon: 'success',
+                title: 'Link gerado!',
+                text: 'Envie para o cliente',
+                showConfirmButton: false,
+                timer: 3000
+            })
+        }
+
+        function logout() {
+            $.ajax({
+                url: linkApi+'/user/logout',
+                type: 'GET',
+                headers: {
+                    'x-access-token': token
+                },
+                success: function() {
+                    localStorage.removeItem( 'token' );
+                    localStorage.removeItem( 'usuario' );
+                    listaComandas.clear();
+                    listaItens.clear();
+                    listaAdicionais.clear();
+                    listaBordas.clear();
+                    listaCategorias.clear();
+                    window.location.href = '../index.html'
+                },
+                error: function() {
+                    window.location.href = '../index.html'
+                }
+            });
+        }
+    </script>
+    <script src="../js/index.js"></script>
+</body>
+</html>

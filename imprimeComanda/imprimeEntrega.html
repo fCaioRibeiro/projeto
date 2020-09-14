@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../bibliotecas/bootstrap.min.css">
+    <title>Imprime</title>
+</head>
+<body style="font-size: 70px;">
+    <div style="width:100%;">
+        <h1 class="display-2 w-100 text-center mb-0 pb-0 nomeEmpresa"></h1>
+        <small class="mesa ml-1 mt-1 font-weight-bold"></small><br>
+        <small class="endereco ml-1 font-weight-bold"></small>
+        
+        <br><br>
+        <ul class="list-group list-group-flush" id="listaNova" style="font-weight: bold; color: black;">
+        </ul>
+
+        <small class="observacao ml-1 font-weight-bold"></small><br>
+        <small class="vrTotal ml-1 font-weight-bold"></small>
+        <small class="vrTaxa ml-1 font-weight-bold"></small>
+        <small class="vrTotalAPagar ml-1 font-weight-bold"></small>
+    </div>
+</body>
+<script src="https://momentjs.com/downloads/moment-with-locales.js"></script>
+<script>
+    moment.locale('pt-br');
+    comandaImprime = JSON.parse(localStorage.getItem('impCmd'));
+    empresa = JSON.parse( localStorage.getItem('dEmp'))
+
+    const { table, increase, creationDate, client, observation, items, totalValue, orderValue, endDate, payment, codigo } = comandaImprime;
+    document.querySelector('#listaNova').innerHTML = '';
+
+    items.forEach((item, ind) => {
+        document.querySelector('#listaNova').innerHTML += `
+        <li class="list-group-item border-bottom border-dark px-0" id="dadosItensColl${ ind }">
+            ${ item.quantity } - ${ item.half ? item.name +' / '+ item.half : item.name} ${ item.size ? ' - ' + item.size : '' }<br>
+            <small style="font-weight: bold;">
+                Valor unidade: ${ (item.price / item.quantity).toLocaleString('pt-br', {minimumFractionDigits: 2})}
+                Valor total: ${ item.price.toLocaleString('pt-br', {minimumFractionDigits: 2}) }    
+            </small>
+        </li>
+        `;
+
+        if (item.additional.length > 0 || item.edges || item.observation) {
+            document.querySelector(`#dadosItensColl${ ind }`).innerHTML += `
+                ${ item.additional.length > 0 ? `<strong style="font-size:55px;">Adicionais:</strong><br><small id="adicionaisSmall${ ind }"></small><br>` : ''}
+                ${ item.edges ? `<strong style="font-size:55px;">Borda:</strong><br><small id="bordaSmall${ ind }"></small><br>` : '' }
+                ${ item.observation ? `<strong style="font-size:55px;">Observação:</strong><br><small id="obsSmall${ ind }"></small>` : '' }
+            `
+            item.additional.forEach((el)=> {
+                document.querySelector(`#adicionaisSmall${ ind }`).innerHTML += `
+                    <strong>${ el.name } ${ el.price.toLocaleString('pt-br', {minimumFractionDigits: 2}) }</strong> -  
+                `
+            });
+            
+            if (item.edges) {
+                document.querySelector(`#bordaSmall${ ind }`).innerHTML += `
+                    <strong>${ item.edges.name } ${ item.edges.price.toLocaleString('pt-br', {minimumFractionDigits: 2}) }</strong>
+                `
+            }
+
+            if (item.observation) {
+                document.querySelector(`#obsSmall${ ind }`).innerHTML += `
+                    <strong style="font-size:55px;">${ item.observation }</strong>
+                `
+            }
+        }
+    });
+    
+    if (table == 'Entrega' || table == 'Pedido' || table == 'Balcão') {
+        document.querySelector('.mesa').innerHTML = `Comanda: ${codigo} <br>${ table } --- <strong style="font-size:60px;">${ moment(new Date()).format('L')} as ${ moment(new Date()).format('LT')}</strong>`
+        document.querySelector('.endereco').innerHTML = `Cl: ${ client.name }<br> En: ${ client.street }, ${ client.district }, ${ client.number }`
+    } else {
+        document.querySelector('.endereco').style.display = 'none';
+        document.querySelector('.mesa').innerHTML = `Comanda: ${codigo} <br>Mesa: ${ table } --- <strong style="font-size:60px;">${ moment(new Date()).format('L')} as ${ moment(new Date()).format('LT')}</strong>`
+    }
+
+    document.querySelector('.vrTotal').innerHTML = `Total: ${ orderValue.toLocaleString('pt-br', {minimumFractionDigits: 2}) }`;
+    document.querySelector('.vrTaxa').innerHTML = `Taxa: ${ increase.toLocaleString('pt-br', {minimumFractionDigits: 2}) }`;
+    document.querySelector('.observacao').innerHTML = `Forma de pagamento:${ payment.card ? ' Cartão':' Dinheiro' } <br>Observação: ${ observation }`;
+    document.querySelector('.vrTotalAPagar').innerHTML = `<strong style="font-size:65px;">Valor total: ${ totalValue.toLocaleString('pt-br', {minimumFractionDigits: 2}) }</strong>`;
+
+    document.querySelector('.nomeEmpresa').innerHTML = `
+        ${empresa.name}
+    `
+
+    window.print();
+</script>
+</html>

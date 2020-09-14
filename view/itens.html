@@ -1,0 +1,522 @@
+<button class="btn btn-outline-success btn-sm rounded-pill px-3 py-0 mb-1 w-100" data-toggle="modal" data-target="#modalCadastraItem" onclick="flNovoItem = true">Novo produto</button>
+<ul class="list-group list-group-flush text-dark w-100" id="tbodyListaItens"></ul>
+
+
+<!-- Adiciona Item -->
+<div class="modal fade" id="modalCadastraItem" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="titulo-item"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <ul class="nav nav-tabs" id="myTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link active" id="principalItem-tab" data-toggle="tab" href="#principalItem" role="tab" aria-controls="principalItem" aria-selected="true">
+                        Principal
+                    </a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="fichaTecnica-tab" data-toggle="tab" href="#fichaTecnica" role="tab" aria-controls="fichaTecnica" aria-selected="false">
+                        Ficha técnica
+                    </a>
+                </li>
+            </ul>
+
+            <form id="enviaItem">
+                <div class="modal-body px-0">
+                    <div class="tab-content" id="myTabContent">
+                        <div class="tab-pane fade show active" id="principalItem" role="tabpanel" aria-labelledby="principalItem-tab">
+                            <div class="container mt-3">
+                                <div class="row">
+                                    <div class="form-group col-12">
+                                        <label for="nomeItem">Nome:</label>
+                                        <input type="text" class="form-control" name="nomeItem" id="nomeItem">
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <label for="precoItem">Preço:</label>
+                                        <input type="text" class="form-control" name="precoItem" id="precoItem">
+                                    </div>
+                                    <div class="form-group col-6">
+                                        <label for="categoriaItem">Categorias</label>
+                                        <select class="custom-select" id="categoriaItem">
+                                            <option data-value="0" selected></option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-12">
+                                        <img id="imgItem" class="mb-3" width="100" height="100" />
+                                        <div class="custom-file">
+                                            <input type="file" id="file" lang="pt" class="" onchange="document.getElementById('imgItem').src = window.URL.createObjectURL(this.files[0])">
+                                        </div>
+                                        <div class="progress mt-2" style="height: 3px;">
+                                            <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade tabelaItens" id="fichaTecnica" role="tabpanel" aria-labelledby="fichaTecnica-tab">
+                            <div class="row px-3">
+                                <h5 class="col-12">Tamanhos:</h5>
+                                <div class="listaTamanhos row w-100 m-1">
+
+                                </div>
+                                <div class="my-1 d-flex align-items-center custom-control custom-checkbox col-12">
+                                    <input type="checkbox" class="custom-control-input" id="temAdicional">
+                                    <label class="custom-control-label ml-3 mb-2" for="temAdicional">Tem adicional</label>
+                                </div>
+
+                                <div class="form-group col-12">
+                                    <label for="fichaItem">Descrição do item:</label>
+                                    <textarea type="text" class="form-control" name="fichaItem" id="fichaItem" maxlength="100" style="resize: none; height: 110px;"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-success text-white">Salvar</button>
+                            <button type="button" class="btn btn-danger text-white btnExcluiItem" onclick="apagaItem()">Excluir</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        timerProgressBar: true,
+        onOpen: (toast) => {
+            toast.addEventListener('mouseenter', Swal.stopTimer)
+            toast.addEventListener('mouseleave', Swal.resumeTimer)
+        }
+    })
+
+    const swalWithBootstrapButtons = Swal.mixin({
+        customClass: {
+            confirmButton: 'btn btn-success',
+            cancelButton: 'btn btn-danger mr-2'
+        },
+        buttonsStyling: false
+    })
+
+    function showCategoriasItem(categorias) {
+        document.querySelector('#categoriaItem').innerHTML = '<option ></option>'
+        categorias.forEach((element, index) => {
+            const { _id, name} = element;
+            document.querySelector('#categoriaItem').innerHTML +=
+            `
+            <option value="${ _id }">${ name }</option>
+            `
+        });
+    }
+
+    function showListaTamanhos(tamanhos) {
+        tamanhos.forEach(el => {
+            document.querySelector('.listaTamanhos').innerHTML += `
+                <div class="my-1 d-flex align-items-center custom-control custom-checkbox col-md-3 col-4">
+                    <input type="checkbox" class="custom-control-input checkInpTam" id="tam${el.size}" onclick="habilitaInput(this, 'preco${el.size}', 'precoItem', 'fichaTecnica')">
+                    <label class="custom-control-label ml-3" for="tam${el.size}">${el.size}</label>
+                </div>
+                <div class="form-group col-md-3 col-8 my-1">
+                    <input type="text" class="form-control" name="preco${el.size}" id="preco${el.size}" disabled>
+                </div>
+            `
+        });
+    }
+
+    function showListaItem(itens) {
+        const $lista = document.querySelector('#tbodyListaItens');
+        $lista.innerHTML = '';
+        
+        if (Array.isArray(itens) && itens.length > 0) {
+            itens.forEach((e, ind) => {
+                if (e.endDate) {
+                    hide = 'visibility: hidden;'
+                } else {
+                    hide = 'visibility: visible;'
+                }
+                $lista.insertAdjacentHTML('beforeend', domListaItens(e, e._id, hide))
+            })
+        } else {
+            $lista.insertAdjacentHTML('beforeend', domListaVaziaItens())
+        }
+
+        if (window.screen.availWidth < 650) {
+            $('.respTbl').hide();
+        }
+    }
+
+    function domListaVaziaItens() {
+        return `<tr><td colspan="5">NÃO EXISTE ITENS</td></tr>`
+    }
+
+    function domListaItens(conteudo, id, hide) {
+        let { name, price, category, sizes } = conteudo;
+
+        precos = '';
+
+        if (!price) {
+            sizes.forEach((el, ind) => {
+                if (el.price) {
+                    precos += `${el.size}: ${el.price.toLocaleString('pt-br', {minimumFractionDigits: 2})} `
+                }
+            })
+        }
+
+        return `
+            <li class="list-group-item d-flex list-group-item-action" style="cursor: pointer;" data-toggle="modal" data-target="#modalCadastraItem" onclick="domItemPronto('${ id }')">
+                <div class="row w-100">
+                    <div class="col-5" style="border-left: solid #343a40; padding-left: 10px;">
+                        <h6 class="mb-0">${ name }</h6>
+                        <small>${ category.name }</small>
+                    </div>
+                    <div class="col-7 pr-0">
+                        <h6 class="mb-0">Preço:</h6>
+                        <small class="precos">${ price ? price.toLocaleString('pt-br', {minimumFractionDigits: 2}) : precos }</small>
+                    </div>
+                </div>
+            </li>
+        `;
+    }
+
+    function domItemPronto(id) {
+        flNovoItem = false;
+        itemPronto = listaItens.filter(e => e._id == id)[0]
+        document.querySelector('#enviaItem').reset()
+        const { _id, name, price, category, dataSheet, sizes, hasAdditional, image  } = itemPronto;
+
+        document.querySelector('input[name="nomeItem"]').value = name
+        document.querySelector('input[name="precoItem"]').value = price
+        document.querySelector('textarea#fichaItem').value = dataSheet
+        document.querySelector('input[id="temAdicional"]').checked = hasAdditional
+        document.getElementById('imgItem').src = `../${image.path || '//imagens/default.jpg'}`
+
+        $(`select#categoriaItem option[value='${category._id}']`).prop("selected", true);
+        $('select#categoriaItem').prop("disabled", true);
+
+        itemPronto.sizes.forEach(el => {
+            if (el.price) {
+                document.querySelector(`input[name=preco${el.size}]`).value = el.price
+            } else {
+                document.querySelector(`input[name=preco${el.size}]`).value = ''
+            }
+        });
+
+        listaTamanhos.filter().forEach(el => {
+            if (document.querySelector(`input[name="preco${el.size}"]`).value) {
+                document.querySelector(`input[id="tam${el.size}"]`).checked = true
+                $(`input[name=preco${el.size}`).removeAttr('disabled')
+            } else {
+                document.querySelector(`input[id="tam${el.size}"]`).checked = false
+                $(`input[name=preco${el.size}`).attr('disabled', 'true')
+            }
+        });
+
+        v = 0
+        document.querySelectorAll('.checkInpTam').forEach(element => {
+            if (element.checked) {
+                v ++;
+                $('input[name="precoItem').attr('disabled', 'true')
+            } else if (v == 0) {
+                $('input[name="precoItem').removeAttr('disabled')
+            }
+        });
+    }
+    
+    function getDomNovoTamanho() {
+        tamanhos = []
+        listaTamanhos.filter().forEach(el => {
+            tamanhos.push({
+                size: el.size
+                ,hasVariation: document.querySelector(`input[id=tam${el.size}]`).checked
+                ,price: document.querySelector(`input[name=preco${el.size}]`).value.trim()
+                ,description : el.description
+            })
+        });
+
+        return tamanhos
+    }
+
+    imagem = {};
+    function getDomNovoItem() {
+        return {
+            name: document.querySelector('input[name="nomeItem"]').value.toUpperCase().trim(),
+            price: document.querySelector('input[name="precoItem"]').value.trim(),
+            category: document.querySelector('select#categoriaItem').value,
+            dataSheet: document.querySelector('textarea#fichaItem').value.trim(),
+            hasAdditional: document.querySelector('input#temAdicional').checked,
+            sizes: getDomNovoTamanho(),
+            image: imagem
+        }
+    }
+
+    document.querySelector('form#enviaItem').addEventListener('submit', (ev) => {
+        ev.preventDefault();
+
+        if (flNovoItem) {
+            $(".progress-bar").width('0%')
+    
+            files = document.getElementById("file").files;
+            var formData = new FormData(),
+            file = [];
+    
+            $.each(files, function(key, val) {
+                file[key] = val;
+            });
+    
+            formData.append('itemImage', file[0]);
+            $.ajax({
+                url: linkApi+'/item/imageUpload',
+                cache: false,
+                contentType: false,
+                processData: false,
+                data: formData,
+                type: 'post',
+                headers: {
+                    'x-access-token': token
+                },
+                xhr: function() {
+                    var xhr = new window.XMLHttpRequest();
+                    xhr.upload.addEventListener("progress", function(evt) {
+                    if (evt.lengthComputable) {
+                    var percentComplete = ((evt.loaded / evt.total) * 100);
+                    $(".progress-bar").width(percentComplete + '%');
+                    }
+                }, false);
+                    return xhr;
+                },
+                error:function(error){
+                    $(".progress-bar").width('0%');
+                    imagem = {}
+                },
+                success: function(data) {
+                    imagem = data.message
+                    $.ajax({
+                        url: linkApi+'/item/set',
+                        type: 'POST',
+                        headers: {
+                            'x-access-token': token
+                        },
+                        data: getDomNovoItem(),
+                        success: function(success) {
+    
+                            listaItens.push(getDomNovoItem());
+    
+                            Toast.fire({
+                                icon: 'success',
+                                title: success.message,
+                                showConfirmButton: false,
+                                timer: 2000
+                            })
+    
+                            listaItens.fetch();
+                            ev.target.reset();
+                            imagem = {};
+                            $('#modalCadastraItem').modal('hide');
+    
+                        },
+                        error: function (error) {
+                            Toast.fire({
+                                icon: 'error',
+                                title: error.responseJSON.message,
+                                showConfirmButton: false,
+                                timer: 3000
+                            })
+                        }
+                    });
+                }
+            });
+        } else {
+            swalWithBootstrapButtons.fire({
+                title: 'Deseja alterar?',
+                text: "",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Alterar',
+                cancelButtonText: 'Não alterar',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.value) {
+                    $(".progress-bar").width('0%')
+    
+                    files = document.getElementById("file").files;
+                    var formData = new FormData(),
+                    file = [];
+    
+                    $.each(files, function(key, val) {
+                        file[key] = val;
+                    });
+    
+                    formData.append('itemImage', file[0]);
+                    $.ajax({
+                        url: linkApi+'/item/imageUpload',
+                        cache: false,
+                        contentType: false,
+                        processData: false,
+                        data: formData,
+                        type: 'post',
+                        headers: {
+                            'x-access-token': token
+                        },
+                        xhr: function() {
+                            var xhr = new window.XMLHttpRequest();
+                            xhr.upload.addEventListener("progress", function(evt) {
+                            if (evt.lengthComputable) {
+                            var percentComplete = ((evt.loaded / evt.total) * 100);
+                            $(".progress-bar").width(percentComplete + '%');
+                            }
+                        }, false);
+                            return xhr;
+                        },
+                        error:function(error){
+                            $(".progress-bar").width('0%');
+                        },
+                        success: function(data) {
+                            
+                            novoTamanhos = []
+                            listaTamanhos.filter().forEach(el => {
+                                novoTamanhos.push({
+                                    size: el.size
+                                    ,hasVariation: document.querySelector(`input[id=tam${el.size}]`).checked
+                                    ,price: document.querySelector(`input[name=preco${el.size}]`).value.trim()
+                                    ,description : el.description
+                                })
+                            });
+
+                            itemPronto.name = document.querySelector('input[name="nomeItem"]').value.toUpperCase().trim(),
+                            itemPronto.price = document.querySelector('input[name="precoItem"]').value.trim(),
+                            itemPronto.dataSheet = document.querySelector('textarea#fichaItem').value.trim(),
+                            itemPronto.hasAdditional = document.querySelector('input#temAdicional').checked,
+                            itemPronto.sizes = novoTamanhos,
+                            itemPronto.image = data.message.filename ? data.message : itemPronto.image
+
+                            $.ajax({
+                                url: linkApi+'/item/update',
+                                type: 'PUT',
+                                headers: {
+                                    'x-access-token': token
+                                },
+                                data: itemPronto,
+                                success: function(success) {
+                                    Toast.fire({
+                                        icon: 'success',
+                                        title: success.message,
+                                        showConfirmButton: false,
+                                        timer: 3000
+                                    })
+
+                                    listaItens.fetch();
+                                    ev.target.reset();
+                                    imagem = {};
+                                    $('#modalCadastraItem').modal('hide');
+
+                                },
+                                error: function (error) {
+                                    Toast.fire({
+                                        icon: 'error',
+                                        title: error.responseJSON.message,
+                                        // text: 'Contate o suporte',
+                                        showConfirmButton: false,
+                                        timer: 3000
+                                    })
+                                }
+                            });
+                        }
+                    });
+                }
+            })
+        }
+    })
+    
+    function apagaItem() {
+        swalWithBootstrapButtons.fire({
+            title: 'Deseja excluir?',
+            text: "",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Excluir',
+            cancelButtonText: 'Não excluir',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.value) {
+                $.ajax({
+                    url: linkApi+'/item/delete',
+                    type: 'DELETE',
+                    headers: {
+                        'x-access-token': token
+                    },
+                    data: itemPronto,
+                    success: function(success) {
+                        Toast.fire({
+                            icon: 'success',
+                            title: success.message,
+                            showConfirmButton: false,
+                            timer: 3000
+                        })
+                        listaItens.fetch();
+                        $('#modalCadastraItem').modal('hide');
+                    },
+                    error: function (error) {
+                        Toast.fire({
+                            icon: 'error',
+                            title: error.responseJSON.message,
+                            // text: 'Contate o suporte',
+                            showConfirmButton: false,
+                            timer: 3000
+                        })
+                    }
+                });
+            }
+        })
+    }
+
+    $('#modalCadastraItem').on('show.bs.modal', function (ev) {
+        if (flNovoItem) {
+            ev.target.querySelector('#enviaItem').reset();
+            document.querySelector('.titulo-item').innerHTML = 'Adicionar item';
+            $('select#categoriaItem').prop("disabled", false);
+            listaTamanhos.filter().forEach(el => {
+                $(`input[name=preco${el.size}`).attr('disabled', 'true');
+            });
+            $(`input[name=precoItem`).removeAttr('disabled');
+            $(`.btnExcluiItem`).hide();
+            document.getElementById('imgItem').src = '../imagens/default.jpg';
+        } else {
+            document.querySelector('.titulo-item').innerHTML = 'Atualizar item';
+            $(`.btnExcluiItem`).show();
+        }
+        imagem = {};
+        $(".progress-bar").width('0%');
+    });
+
+    function habilitaInput(input, inpHabilita, inpDesabilita, allInpunt) {
+        inpPreco = document.querySelectorAll(`#${allInpunt} input[type=checkbox]`);
+
+        if (input.checked) {
+            document.querySelector(`input[name=${inpHabilita}]`).disabled = false;
+        } else {
+            document.querySelector(`input[name=${inpHabilita}]`).disabled = true;
+            document.querySelector(`input[name=${inpHabilita}]`).value = '';
+        }
+
+        document.querySelector(`input[name=${inpDesabilita}]`).disabled = false;
+        inpPreco.forEach(element => {
+            if (element.checked) {
+                document.querySelector(`input[name=${inpDesabilita}]`).value = '';
+                document.querySelector(`input[name=${inpDesabilita}]`).disabled = true;
+            }
+        });
+    }
+
+    removeAutoComplete()
+</script>

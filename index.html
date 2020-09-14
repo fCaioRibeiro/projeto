@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="bibliotecas/bootstrap.min.css">
+    <link rel="stylesheet" href="bibliotecas/login.css">
+    <link rel="shortcut icon" href="../logo/caio04.png" type="image/x-icon" />
+    <title>Login</title>
+</head>
+    <body>  
+        <div class="wrapper fadeInDown">
+        <div id="formContent">
+
+            <div class="fadeIn first">
+            <img src="logo/CRibeiro.png" id="icon" alt="User Icon" />
+            </div>
+
+            <form id="enviarLogin">
+            <input type="text" id="login" class="fadeIn second" name="username" placeholder="Usuario" autocomplete="off">
+            <input type="password" id="password" class="fadeIn third" name="password" placeholder="Senha">
+            <input type="submit" class="fadeIn fourth" value="Acessar">
+            </form>
+
+            <div id="formFooter">
+            <h6>Suporte</h6>
+            <small>(88) 98110-6491</small>
+            </div>
+
+        </div>
+        </div>
+    </body>
+</html>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+<script src="../socket.io/socket.io.js"></script>
+<script>
+    const linkApi = 'https://demo.cribeiro.app';
+
+    // const client = io(linkApi);
+
+    document.querySelector('#enviarLogin').addEventListener('submit', function (ev) {
+        ev.preventDefault();
+        
+        username = document.querySelector('input[name="username"]').value;
+        password = document.querySelector('input[name="password"]').value;
+
+        user = {
+            username,
+            password
+        }
+
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            onOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        })
+
+        $.ajax({
+            url: linkApi+'/user/login',
+            type: 'POST',
+            data: user,
+            success: function(success) {
+                Toast.fire({
+                    icon: 'success',
+                    title: success.message
+                })
+                localStorage.setItem('token' , JSON.stringify(success.token));
+                localStorage.setItem('usuario' , JSON.stringify(success.data));
+                client.emit('allowLogin', success.data);
+                window.location.href = 'view/inicio.html';
+            },
+            error: function (error) {
+                Toast.fire({
+                    icon: 'error',
+                    title: error.responseJSON.message
+                })
+            }
+        });
+    })
+</script>

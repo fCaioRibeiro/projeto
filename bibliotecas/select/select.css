@@ -1,0 +1,16 @@
+.box-select {
+    position: relative;
+}
+
+.box-select .list-suggestions {
+    position: absolute;
+    z-index: 9999;
+    width: 100%;
+}
+
+.box-select .list-suggestions > li {
+    cursor: pointer;
+}
+.box-select .list-suggestions > li:last-child {
+    cursor: default;
+}

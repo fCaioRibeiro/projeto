@@ -1,0 +1,147 @@
+<div class="card-deck col-12">
+    <div class="card mb-3 col-md-4 col-12 px-0 shadow-sm">
+        <div class="row no-gutters">
+            <div class="bg-warning p-1"></div>
+            <div class="col-11">
+                <div class="card-body pr-0">
+                    <h6 class="card-title text-warning m-0">
+                        Comandas(hoje)
+                    </h6>
+                    <h1 class="card-text d-flex m-0">
+                        <small class="text-black-50 quantidadeComandaHoje"></small>
+                        <i class="fas fa-receipt text-warning ml-auto"></i>
+                    </h1>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mb-3 col-md-4 col-12 px-0 shadow-sm">
+        <div class="row no-gutters">
+            <div class="bg-success p-1"></div>
+            <div class="col-11">
+                <div class="card-body pr-0">
+                    <h6 class="card-title text-success m-0">
+                        Recebido(hoje)
+                    </h6>
+                    <h1 class="card-text d-flex m-0">
+                        <small class="text-black-50 valorRecebidoHoje"></small>
+                        <i class="fas fa-dollar-sign text-success ml-auto"></i>
+                    </h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3 col-md-4 col-12 px-0 shadow-sm">
+        <div class="row no-gutters">
+            <div class="bg-success p-1"></div>
+            <div class="col-11">
+                <div class="card-body pr-0">
+                    <h6 class="card-title text-success m-0">
+                        Recebido(mês)
+                    </h6>
+                    <h1 class="card-text d-flex m-0">
+                        <small class="text-black-50 valorTotalMes"></small>
+                        <i class="fas fa-dollar-sign text-success ml-auto"></i>
+                    </h1>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="card mb-3 col-md-4 col-12 px-0 shadow-sm">
+        <div class="row no-gutters">
+            <div class="bg-success p-1"></div>
+            <div class="col-11">
+                <div class="card-body pr-0">
+                    <h6 class="card-title text-success m-0">
+                        Recebido(total) <i class="fas fa-eye fa-eye-slash text-dark ocultaValor" style="cursor: pointer;"></i>
+                    </h6>
+                    <h1 class="card-text d-flex m-0">
+                        <small class="text-black-50 valorTotal fade"></small>
+                        <i class="fas fa-dollar-sign text-success ml-auto"></i>
+                    </h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card-deck col-12">
+    <div class="card mb-3 col-md-4 col-12 px-0 shadow-sm">
+        <div class="row no-gutters">
+            <div class="bg-success p-1"></div>
+            <div class="col-11">
+                <div class="card-body pr-0">
+                    <h6 class="card-title text-success m-0">
+                        Recebido(dinheiro)
+                    </h6>
+                    <h1 class="card-text d-flex m-0">
+                        <small class="text-black-50 valorTotalDinheiro"></small>
+                        <i class="fas fa-dollar-sign text-success ml-auto"></i>
+                    </h1>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-3 col-md-4 col-12 px-0 shadow-sm">
+        <div class="row no-gutters">
+            <div class="bg-success p-1"></div>
+            <div class="col-11">
+                <div class="card-body pr-0">
+                    <h6 class="card-title text-success m-0">
+                        Recebido(cartao)
+                    </h6>
+                    <h1 class="card-text d-flex m-0">
+                        <small class="text-black-50 valorTotalCartao"></small>
+                        <i class="fas fa-dollar-sign text-success ml-auto"></i>
+                    </h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    listaComandas.fetch();
+
+    function domDashBoard(comandas) {
+        valorRecebidoHoje = 0;
+        valorTotalRecebido = 0;
+        valorTotalMes = 0;
+        valorTotalDinheiro = 0;
+        valorTotalCartao = 0;
+        contComandasFinalizadas = 0;
+        comandas.forEach(element => {
+            if (element.endDate && moment(element.endDate).format('L') == moment(new Date()).format('L') && !element.exclusionDate) {
+                valorRecebidoHoje += element.totalValue
+                contComandasFinalizadas += 1
+            }
+            if (!element.exclusionDate && new Date(element.endDate) >= new Date(new Date(new Date().setDate(1)).setHours(0,0,0,0))){
+                valorTotalMes += element.totalValue
+            }
+            if (!element.exclusionDate && element.endDate) {
+                valorTotalRecebido += element.totalValue
+            }
+            if (!element.exclusionDate && element.endDate && element.payment.money) {
+                valorTotalDinheiro += element.totalValue
+            }
+            if (!element.exclusionDate && element.endDate && element.payment.card) {
+                valorTotalCartao += element.totalValue
+            }
+        });
+        document.querySelector('.valorRecebidoHoje').innerHTML = valorRecebidoHoje.toLocaleString('pt-br', {minimumFractionDigits: 2})
+        document.querySelector('.quantidadeComandaHoje').innerHTML = contComandasFinalizadas;
+        document.querySelector('.valorTotal').innerHTML = valorTotalRecebido.toLocaleString('pt-br', {minimumFractionDigits: 2});
+        document.querySelector('.valorTotalMes').innerHTML = valorTotalMes.toLocaleString('pt-br', {minimumFractionDigits: 2});
+        document.querySelector('.valorTotalDinheiro').innerHTML = valorTotalDinheiro.toLocaleString('pt-br', {minimumFractionDigits: 2});
+        document.querySelector('.valorTotalCartao').innerHTML = valorTotalCartao.toLocaleString('pt-br', {minimumFractionDigits: 2});
+    }
+
+    document.querySelector('.ocultaValor').onclick = function () {
+        $('.ocultaValor').toggleClass('fa-eye-slash');
+        $('.valorTotal').toggleClass('show');
+    }
+</script>

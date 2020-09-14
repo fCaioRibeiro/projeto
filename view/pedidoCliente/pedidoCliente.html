@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.0.0/animate.min.css">
+    <style>
+        footer {
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+
+        .footer-pedido {
+            position: fixed;
+            width: 100%;
+            bottom: 0;
+        }
+
+        .form-control {
+            box-shadow: none !important;
+        }
+
+        .lista-outros-links .card {
+            height: calc(85% - 5px);
+        }
+        .lista-outros-links .card > img {
+            height: 120px;
+            object-fit: cover;
+        }
+        .lista-outros-links .card > figure > img {
+            height: 130px;
+            width: 75%;
+            display: block;
+            margin: 10px auto;
+            object-fit: contain;
+        }
+        .lista-outros-links .card .card-text {
+            line-height: 18px;
+        }
+        .lista-outros-links .card .card-icone {
+            height: 65px;
+            width: 65px;
+            padding: 5px;
+            object-fit: cover;
+            object-position: center;
+            position: absolute;
+            top: -33px;
+        }
+
+        .btn-nav:hover {
+            box-shadow: 0 3px 0 0 #343a40;
+        }
+    </style>
+    <title>Pedido</title>
+</head>
+<body>
+    <header class="mt-5 p-2 mb-4">
+        <ul class="bg-white fixed-top nav justify-content-center border" id="myTab" role="tablist">
+            <li class="nav-item btn-nav" role="presentation">
+                <a class="nav-link active text-center bg-secondary text-white" id="catalago-tab" data-toggle="tab" href="#catalago" role="tab" aria-controls="catalago" aria-selected="false">
+                    <h6 class="m-1">Cardápio</h6>
+                    <i class="fas fa-utensils" style="font-size: 40px;"></i>
+                </a>
+            </li>
+            <li class="nav-item btn-nav" role="presentation">
+                <a class="nav-link text-center text-dark" id="pedido-tab" data-toggle="tab" href="#pedido" role="tab" aria-controls="pedido" aria-selected="true">
+                    <h6 class="m-1">Pedido<span class="ml-auto m-1 badge badge-danger badge-pill badgePedido position-absolute"></span></h6>
+                    <i class="fas fa-receipt" style="font-size: 40px;"></i>
+                </a>
+            </li>
+            <li class="nav-item btn-nav" role="presentation">
+                <a class="nav-link text-center text-dark" id="usuario-tab" data-toggle="tab" href="#usuario" role="tab" aria-controls="usuario" aria-selected="false">
+                    <h6 class="m-1">Entrega</h6>
+                    <i class="fas fa-user" style="font-size: 40px;"></i>
+                </a>
+            </li>
+        </ul>
+    </header>
+
+    <main>
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="catalago" role="tabpanel" aria-labelledby="catalago-tab">
+                <div class="accordion modal-body p-0 mb-4" id="listaItemComanda">
+                        
+                </div>
+            </div>
+    
+            <div class="tab-pane p-3 fade" id="pedido" role="tabpanel" aria-labelledby="pedido-tab">
+                <div class="row listaItemPedido mb-4">
+                    
+                </div>
+            </div>
+    
+            <div class="tab-pane fade" id="usuario" role="tabpanel" aria-labelledby="usuario-tab">
+                
+                <input type="hidden" name="idCliente">
+                <form id="novoPedido">
+                    <div class="row m-2">
+                        <small class="text-danger text-center w-100">PREENCHA PRIMEIRAMENTE O SEU TELEFONE</small>
+                        <div class="form-group col-6">
+                            <label for="valorTaxa">Taxa:</label>
+                            <input type="text" class="form-control" name="valorTaxa" id="valorTaxa" disabled required>
+                        </div>
+                        <div class="form-group col-6">
+                            <label for="telCliente">Telefone:</label>
+                            <input type="text" class="form-control" name="telCliente" id="telCliente" onkeyup="verificaUsuario(this)">
+                        </div>
+                        <div class="form-group col-6 col-md-4">
+                            <label for="cliente">Nome:</label>
+                            <input type="text" class="form-control" name="cliente" id="cliente" disabled>
+                        </div>
+                        <div class="form-group col-6 col-md-3">
+                            <label for="endBairro">Bairro:</label>
+                            <input type="text" class="form-control" name="endBairro" id="endBairro" disabled>
+                        </div>
+                        <div class="form-group col-9 col-md-3">
+                            <label for="endRua">Rua:</label>
+                            <input type="text" class="form-control" name="endRua" id="endRua" disabled>
+                        </div>
+                        <div class="form-group col-3 col-md-2">
+                            <label for="endNum">Num:</label>
+                            <input type="text" class="form-control" name="endNum" id="endNum" disabled>
+                        </div>
+                        <div class="entrega form-group custom-control custom-radio col-12 pl-3">
+                            <div class="custom-control custom-radio col-6">
+                                <input type="radio" class="custom-control-input" id="cartao" onclick="document.querySelector('#valorTaxa').value = 2" name="defaultExampleRadios">
+                                <label class="custom-control-label" for="cartao">Pagar com cartão</label>
+                            </div>
+                            <div class="custom-control custom-radio col-6">
+                                <input type="radio" class="custom-control-input" id="dinheiro" onclick="document.querySelector('#valorTaxa').value = 0" data-taxa='0' name="defaultExampleRadios">
+                                <label class="custom-control-label" for="dinheiro">Pagar com dinheiro</label>
+                            </div>
+                        </div>
+                        <div class="form-group col-12">
+                            <label for="obsComanda">Outras informações:</label>
+                            <textarea type="text" class="form-control" name="obsComanda" id="obsComanda" maxlength="100" style="resize: none; height: 110px;"></textarea>
+                        </div>
+                        <!-- <button type="submit" class="btn btn-success ml-auto mr-3 btnSalvaPedido">Enviar</button> -->
+                        <button type="submit" class="btn fixed-bottom mb-5 ml-auto mr-3 btnSalvaPedido" style="font-size: 30px; width: 50px;"></i><i class="fas fa-share text-success"><h1 style="font-size: 12px;">Enviar pedido</h1></i></button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </main>
+
+    <div class="footer-pedido w-100 bg-dark text-white p-2 text-center">
+        <small class="smallPedido">
+
+        </small>
+    </div>
+
+    <!-- MODAL ADICIONAL -->
+    <div class="modal fade" id="modalAdicional" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tituloAdicional">Adicionais</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="accordion modal-body">
+                    <div class="row" id="listaAdicional">
+                    
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success text-white" data-dismiss="modal">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- MODAL BORDA -->
+    <div class="modal fade" id="modalBorda" data-backdrop="static" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="tituloBorda">Bordas</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="accordion modal-body">
+                    <div class="row" id="listaBorda">
+                        <div class="col-6">
+                            <div class="card">
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success text-white" data-dismiss="modal">Salvar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer class="text-center bg-dark py-1 fade">
+        <small class="text-light itensfooter">
+        </small> 
+    </footer>
+
+    <script src="../../socket.io/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <script src="https://momentjs.com/downloads/moment-with-locales.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.0/jquery.mask.js"></script>
+    <script>
+        moment.locale('pt-br');
+
+        $('.footer-pedido').hide()
+        $('#pedido-tab').click(function () {
+            $('#pedido-tab').addClass('bg-secondary text-white')
+            .removeClass('text-dark');
+
+            $('#catalago-tab').removeClass('bg-secondary text-white')
+           .addClass('text-dark');
+
+           $('#usuario-tab').removeClass('bg-secondary text-white')
+           .addClass('text-dark');
+
+            $('.footer-pedido').show();
+        })
+        $('#catalago-tab').click(function () {
+           $('#catalago-tab').addClass('bg-secondary text-white')
+           .removeClass('text-dark');
+
+           $('#pedido-tab').removeClass('bg-secondary text-white')
+           .addClass('text-dark');
+
+           $('#usuario-tab').removeClass('bg-secondary text-white')
+           .addClass('text-dark');
+
+           $('.footer-pedido').hide();
+        })
+        $('#usuario-tab').click(function () {
+            $('#pedido-tab').removeClass('bg-secondary text-white')
+            .addClass('text-dark');
+
+            $('#catalago-tab').removeClass('bg-secondary text-white')
+           .addClass('text-dark');
+
+            $('#usuario-tab').addClass('bg-secondary text-white')
+            .removeClass('text-dark');
+
+
+           $('.footer-pedido').hide();
+        })
+
+        const linkApi = 'https://demo.cribeiro.app';
+        const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmMTM2MjVmNTQxMmQ3MDAxNmEyMzAyZCIsIm5hbWUiOiJDbGllbnRlcyIsInVzZXJuYW1lIjoiY2xpZW50ZXMiLCJyb2xlcyI6WyJVU0VSIl0sImlhdCI6MTU5NTYwNDg5NH0.DkDZK7vCoArmzIxdtL_XWBDn9WsJt3WCfX4n7QGrF3Y';
+
+        const socket = io(linkApi);
+
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            onOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        })
+
+        const swalWithBootstrapButtons = Swal.mixin({
+            customClass: {
+                confirmButton: 'btn btn-success',
+                cancelButton: 'btn btn-danger mr-2'
+            },
+            buttonsStyling: false
+        })
+
+        $.ajax({
+            url: linkApi+'/additional/list',
+            type: 'GET',
+            headers: {
+                'x-access-token': token
+            },
+            success: function(res) {
+                listaAdicionais = res
+            },
+        });
+
+        $.ajax({
+            url: linkApi+'/edges/list',
+            type: 'GET',
+            headers: {
+                'x-access-token': token
+            },
+            success: function(res) {
+                listaBordas = res
+            },
+        });
+
+        $.ajax({
+            url: linkApi+'/category/list',
+            type: 'GET',
+            headers: {
+                'x-access-token': token
+            },
+            success: function(res) {
+                document.querySelector(`#listaItemComanda`).innerHTML = '';
+                res.forEach((element, index) => {
+                    const { _id, name} = element;
+                    novoNome = removeAcento(name)
+                    document.querySelector(`#listaItemComanda`).innerHTML +=  `
+                    <div class="card m-2 bg-dark text-white border border-dark">
+                        <div class="card-header" data-toggle="collapse" data-target="#${ novoNome }" aria-expanded="true">
+                            <h6 class="mb-0">
+                                ${ name }
+                            </h6>
+                        </div>
+                    
+                        <div id="${ novoNome }" class="collapse bg-white" data-parent="#listaItemComanda">
+                            <div class="card-body" >
+                                <div class="form-row lista-outros-links itensCollAdiciona"></div>
+                            </div>
+                        </div>
+                    </div> `;
+
+                    $.ajax({
+                        url: linkApi+'/item/list',
+                        type: 'GET',
+                        headers: {
+                            'x-access-token': token
+                        },
+                        success: function(res) {
+                            res.forEach((el, ind) => {
+                                const { name, category, sizes, price, hasAdditional, dataSheet, image } = el;
+                                if (category._id == _id) {
+                                    idItem = el._id
+                                    document.querySelectorAll('.itensCollAdiciona')[index].innerHTML +=
+                                    `
+                                    <div class="col-12 col-sm-6 col-md-4 col-lg-3 ">
+                                        <div class="card mb-2 mx-2" style="border-radius: 15px; overflow: hidden;">
+                                            <img src="../..${image.path || '/imagens/default.jpg'}" class="card-img-top">
+                                            <span class="ml-auto m-1 badge badge-primary badge-pill" id="A${idItem}">
+                                                ${price ? 'R$ '+price.toLocaleString('pt-br', {minimumFractionDigits: 2}) : '' }
+                                            </span>
+                                            <div class="card-body position-relative px-4 mb-4 pt-0">
+                                                <h5 class="card-title text-dark">${name}</h5>
+                                                <p class="card-text text-muted pb-3">${dataSheet}</p>
+                                            </div>
+                                            <div class="card-footer px-3 border-0 bg-transparent">
+                                                <div class="form-group mb-2">
+                                                    <select class="form-control tamanhoItem" id="B${idItem}">
+                                                        <option value="0" data-priceund="${price}" data-hasadditional="${hasAdditional}" selected>Tamanho</option>
+                                                    </select>
+                                                </div>
+                                                <div class="row mx-2">
+                                                    <button class="btn btn-outline-primary rounded-pill btn-sm px-4 mr-1 btnAdiciona" onclick="inteira('${idItem}', '${name}', '${ind}')">Adicionar</button><p></p>
+                                                    <button class="btn btn-outline-primary rounded-pill btn-sm px-4 mr-auto" id="B${idItem}" onclick="metade('${idItem}', '${name}', ${ind})">Metade</button><p></p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    `
+
+                                    sizes.forEach(el => {
+                                        if (el.price) {
+                                            document.querySelector(`span#A${idItem}`).innerHTML += `${el.size +'-'+ el.price.toLocaleString('pt-br', {minimumFractionDigits: 2})} `
+                                        }
+                                        if (el.hasVariation) {
+                                            document.querySelector(`select#B${idItem}`).innerHTML += `
+                                                <option value="${ el._id }" data-price="${ el.price }" data-size="${ el.size }" data-hasadditional="${hasAdditional}">${ el.description }</option>
+                                            `
+                                        }
+                                    });
+
+                                    if (price) {
+                                        document.querySelector(`select#B${idItem}`).style.display = 'none'
+                                        document.querySelector(`button#B${idItem}`).style.display = 'none'
+                                    }
+
+                                }
+                            })
+                        },
+                    });
+                });
+            },
+        });
+
+        function domAdicional(index, size) {
+            document.querySelector('#listaAdicional').innerHTML = '';
+            listaAdicionais.forEach((el, ind) => {
+                const { name, price } = el;
+                document.querySelector('#listaAdicional').innerHTML +=
+                `
+                <div class="col-6 p-1">
+                    <div class="card bgAdicional">
+                        <div class="card-body">
+                            <h5 class="card-title">${ name }</h5>
+                            <p class="card-text mb-0">Preço: ${price.toLocaleString('pt-br', {minimumFractionDigits: 2})} ${size != 'undefined' ? 'Tamanho: ' + size : '' }</p>
+                            <div class="d-flex">
+                                <input class="form-control-input ml-auto" type="checkbox" name="checkAdicional" onclick="adicionalItem(${ index })"
+                                data-price="${ price }" data-name="${ name }"> 
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `    
+            });
+            
+            check = document.querySelectorAll("input[name=checkAdicional]")
+            if (itensComanda.length > 0) {
+                if (itensComanda[index].additional.length > 0) {
+                    check.forEach((elCheck, ind) => {
+                        itensComanda[index].additional.forEach(elAdd => {
+                            if (elAdd.name === elCheck.dataset.name) {
+                                elCheck.checked = true
+                                document.querySelectorAll("div.bgAdicional")[ind].style.background = "#28a745"
+                                document.querySelectorAll("div.bgAdicional")[ind].style.color = "white"
+                            }
+                        });
+                    });
+                }
+            }
+
+            document.querySelector('#listaBorda').innerHTML = '<h6 class="m-auto">ITEM NÃO POSSUI BORDAS<h6>';
+            if (size != 'undefined') {
+                document.querySelector('#listaBorda').innerHTML = '';
+                bordas = listaBordas.map(e => e.sizes.filter( e => e.size == size))
+                listaBordas.forEach((el, ind)=> {
+                    const { name } = el;
+                    let { price, size } = bordas[ind][0]
+                    
+                    document.querySelector('#listaBorda').innerHTML +=`
+                    <div class="col-6 p-1">
+                        <div class="card bgBorda">
+                            <div class="card-body">
+                                <h5 class="card-title">${ name }</h5>
+                                <p class="card-text mb-0">Preço: ${price.toLocaleString('pt-br', {minimumFractionDigits: 2})} Tamanho: ${size}</p>
+                                <div class="d-flex">
+                                    <input class="form-control-input ml-auto" type="radio" name="radioBorda" value="true" onclick="bordaItem(${ index })"
+                                    data-price="${ price }" data-name="${ name }"> 
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    `    
+                }); 
+            }
+
+            radio = document.querySelectorAll("input[name=radioBorda]")
+            if (itensComanda.length > 0) {
+                if (itensComanda[index].edges != '') {
+                    radio.forEach((elRadio, ind) => {
+                        if (itensComanda[index].edges.name === elRadio.dataset.name) {
+                            document.querySelectorAll("div.bgBorda")[ind].style.background = "#28a745"
+                            document.querySelectorAll("div.bgBorda")[ind].style.color = "white"
+                            elRadio.checked = true
+                        }
+                    });
+                }
+            }
+        }
+
+        function bordaItem(index) {
+            if (itensComanda.length > 0) {
+                itensComanda[index].price = itensComanda[index].priceHome
+                check = document.querySelectorAll("input[name=radioBorda]")
+                itensComanda[index].edges = {}
+                check.forEach((el, ind)=> {
+                    const {name, price} = el.dataset
+                    if (el.checked) {
+                        itensComanda[index].edges = {
+                            name,
+                            price: parseFloat(price)
+                        }
+
+                        itensComanda[index].price += parseFloat(price)
+
+                        document.querySelectorAll("div.bgBorda")[ind].style.background = "#28a745"
+                        document.querySelectorAll("div.bgBorda")[ind].style.color = "white"
+                    } else {  
+                        document.querySelectorAll("div.bgBorda")[ind].style.background = "white"
+                        document.querySelectorAll("div.bgBorda")[ind].style.color = "black"
+                    }
+                });
+                itensComanda[index].additional.forEach(el => {
+                    itensComanda[index].price += el.price
+                });
+                itensComanda[index].price *= itensComanda[index].quantity;
+            atualizaDomPedido();
+            }
+        }
+
+        function adicionalItem(index) {
+            if (itensComanda.length > 0) {
+                itensComanda[index].price = itensComanda[index].priceHome
+                check = document.querySelectorAll("input[name=checkAdicional]")
+                itensComanda[index].additional = []
+                check.forEach((el, ind)=> {
+                    const {name, price} = el.dataset
+                    if (el.checked) {
+                        itensComanda[index].additional.push({
+                            name,
+                            price: parseFloat(price)
+                        })
+
+                        itensComanda[index].price += parseFloat(price)
+                        
+                        document.querySelectorAll("div.bgAdicional")[ind].style.background = "#28a745"
+                        document.querySelectorAll("div.bgAdicional")[ind].style.color = "white"
+                    } else {  
+                        document.querySelectorAll("div.bgAdicional")[ind].style.background = "white"
+                        document.querySelectorAll("div.bgAdicional")[ind].style.color = "black"
+                    }
+                });
+                if (itensComanda[index].edges.price) {
+                    itensComanda[index].price += itensComanda[index].edges.price
+                }
+                itensComanda[index].price *= itensComanda[index].quantity
+                atualizaDomPedido();
+            }
+        }
+
+        function atualizaDomPedido() {
+            document.querySelector(`.listaItemPedido`).innerHTML = '';
+            document.querySelector(`.smallPedido`).innerHTML = '';
+            document.querySelector(`.badgePedido`).innerHTML = '';
+            totalAPagar = 0;
+            quantidadeTotal = 0;
+            itensComanda.forEach((el, ind)=> {
+                const { name, half, price, size, quantity, edges, hasadditional } = el
+                totalAPagar += parseFloat(price)
+                quantidadeTotal += parseInt(quantity)
+                document.querySelector(`.listaItemPedido`).innerHTML += `
+                    <div class="col-sm-6 col-lg-4 mb-2">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">${half ? half + ' / ' + name : name}</h5>
+                                <p class="card-text mb-0">Preço: ${price.toLocaleString('pt-br', {minimumFractionDigits: 2})} ${size ? 'Tamanho:' + size : '' }</p>
+                                <div class="d-flex align-items-center mb-3" onclick="quantidadeItem('${ind}')">
+                                    Quantidade:
+                                    <button class="fas fa-minus pr-0" onclick="menos( 'quantidade${ind}' )" style="background-color: #ff000000; border: 0; font-size: 17px;"></button>
+                                    <input class="text-center" type="text" name="quantidadePorItem" id="quantidade${ind}" value="${quantity}" size="1" disabled style="background-color: #ff000000; border: 0;"/>
+                                    <button class="fas fa-plus pl-0" onclick="mais( 'quantidade${ind}' )" style="background-color: #ff000000; border: 0; font-size: 17px;"></button>
+                                </div>
+                                <div class="d-flex">
+                                ${hasadditional == 'true' ? `
+                                    <button class="btn btn-outline-primary rounded-pill btn-sm mr-1" data-toggle="modal" data-target="#modalAdicional" onclick="domAdicional('${ind}','${size}')">Adicionais</button>
+                                    <button class="btn btn-outline-primary rounded-pill btn-sm" data-toggle="modal" data-target="#modalBorda" onclick="domAdicional('${ind}','${size}')">Borda</button>
+                                ` : ''}
+                                    <button class="btn btn-outline-danger rounded-pill btn-sm ml-auto" onclick="removeItemComanda('${ind}')"><i class="fas fa-eraser"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+
+                document.querySelector(`.badgePedido`).innerHTML = '!';
+                document.querySelector(`.smallPedido`).innerHTML = `
+                    Valor total: ${totalAPagar.toLocaleString('pt-br', {minimumFractionDigits: 2})} Quantidade: ${quantidadeTotal}
+                `
+            });
+            $('#pedido-tab').click()
+        }
+
+        var itensComanda = [];
+        function inteira(idItem, nomeItem) {
+            const selectTam = document.querySelector(`select#B${idItem}`).selectedOptions[0];
+            const { size, price, priceund, hasadditional } = selectTam.dataset
+
+            swalWithBootstrapButtons.fire({
+                title: `Deseja adicionar ${nomeItem} ao pedido?`,
+                icon: 'warning',
+                input: 'text',
+                inputPlaceholder: 'Observação',
+                inputAttributes: {
+                        'aria-label': 'Observação'
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Sim',
+                cancelButtonText: 'Não',
+                reverseButtons: true
+            }).then((result) => {
+                if (!result.dismiss) {
+                    if (price) {
+                        // Toast.fire({
+                        //     icon: 'success',
+                        //     // title: `Item ${nomeItem} adicionado ao pedido`,
+                        //     showConfirmButton: false,
+                        //     timer: 5500
+                        // })
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: `Item ${nomeItem} adicionado ao pedido`,
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+
+                        itensComanda.push({
+                            name: nomeItem,
+                            half: '',
+                            price: parseFloat(price),
+                            priceHome: parseFloat(price),
+                            observation: result.value.toUpperCase(),
+                            size: size,
+                            hasadditional,
+                            quantity: 1,
+                            additional: [],
+                            edges: {},
+                        })
+
+                        document.querySelector(`select#B${idItem}`).selectedIndex = 0;
+                        atualizaDomPedido();
+
+                    } else if (priceund != 'null') {
+                        // Toast.fire({
+                        //     icon: 'success',
+                        //     // title: `Item ${nomeItem} adicionado ao pedido`,
+                        //     showConfirmButton: false,
+                        //     timer: 5500
+                        // })
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: `Item ${nomeItem} adicionado ao pedido`,
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+
+                        itensComanda.push({
+                            name: nomeItem,
+                            half: '',
+                            price: parseFloat(priceund),
+                            priceHome: parseFloat(priceund),
+                            observation: result.value.toUpperCase(),
+                            size: size,
+                            hasadditional,
+                            quantity: 1,
+                            additional: [],
+                            edges: {},
+                        })
+
+                        atualizaDomPedido();
+                        
+                    } else {
+                        // Toast.fire({
+                        //     icon: 'error',
+                        //     title: `Item ${nomeItem} não foi selecionado tamanho`,
+                        //     showConfirmButton: false,
+                        //     timer: 5500
+                        // })
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: `Item ${nomeItem} não foi selecionado tamanho`,
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+
+                    }
+                }
+            })
+        }
+
+        var itemMetade = []
+        function metade(idItem, nomeItem) {
+            const selectTam = document.querySelector(`select#B${idItem}`).selectedOptions[0];
+            const { size, price, hasadditional } = selectTam.dataset;
+            const btnAdiciona = document.querySelectorAll(`button.btnAdiciona`);
+
+            if (itemMetade.length < 1) {
+                swalWithBootstrapButtons.fire({
+                    title: `Deseja adicionar ${nomeItem} como metade?`,
+                    text: "",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sim',
+                    cancelButtonText: 'Não',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (result.value) {
+                        if (!size) {
+                            // Toast.fire({
+                            //     icon: 'error',
+                            //     title: `Item ${nomeItem} não foi selecionado tamanho`,
+                            //     showConfirmButton: false,
+                            //     timer: 5500
+                            // })
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: `Item ${nomeItem} não foi selecionado tamanho`,
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+
+                        } else if (itemMetade.length < 1) {
+                            itemMetade.push({
+                                name: nomeItem,
+                                price: parseFloat(price),
+                                size: size
+                            })
+                            Toast.fire({
+                                icon: 'warning',
+                                // title: `Adicione a outra metade para o item ${nomeItem}`,
+                                showConfirmButton: false,
+                                timer: 5500
+                            })
+
+                            Swal.fire({
+                                icon: 'success',
+                                title: `Adicione a outra metade para o item ${nomeItem}`,
+                                showConfirmButton: false,
+                                timer: 1500
+                            })
+
+                            btnAdiciona.forEach(el => {
+                                el.style.display = 'none'
+                            });
+
+                            $(`select.tamanhoItem option[data-size='${size}']`).prop("selected", true);
+                            $('select.tamanhoItem').prop("disabled", true);
+                            document.querySelector(`select#B${idItem}`).selectedIndex = 0;
+
+                        }
+                        footerItens()
+                    }
+                })
+            } else if (itemMetade[0].size == size) {
+                swalWithBootstrapButtons.fire({
+                    title: `Deseja adicionar ${nomeItem + '/' + itemMetade[0].name} ao pedido?`,
+                    icon: 'warning',
+                    input: 'text',
+                    inputPlaceholder: 'Observação',
+                    inputAttributes: {
+                            'aria-label': 'Observação'
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: 'Sim',
+                    cancelButtonText: 'Não',
+                    reverseButtons: true
+                }).then((result) => {
+                    if (!result.dismiss) {
+                        vr = 0
+                        itemMetade[0].price > price ? vr = itemMetade[0].price : vr = parseFloat(price);
+        
+                        itensComanda.push({
+                            name: nomeItem,
+                            half: itemMetade[0].name,
+                            price: vr,
+                            priceHome: vr,
+                            size: itemMetade[0].size,
+                            observation: result.value.toUpperCase(),
+                            hasadditional,
+                            quantity: 1,
+                            additional: [],
+                            edges: {},
+                        });
+                        // Toast.fire({
+                        //     icon: 'success',
+                        //     // title: `Item ${nomeItem + '/' + itemMetade[0].name} adicionado ao pedido`,
+                        //     showConfirmButton: false,
+                        //     timer: 5500
+                        // })
+                        Swal.fire({
+                            icon: 'success',
+                            title: `Item ${nomeItem + '/' + itemMetade[0].name} adicionado ao pedido`,
+                            showConfirmButton: false,
+                            timer: 1500
+                        })
+        
+                        btnAdiciona.forEach(el => {
+                            el.style.display = 'initial'
+                        });
+        
+                        $(`select.tamanhoItem option[value='0']`).prop("selected", true);
+                        $('select.tamanhoItem').prop("disabled", false);
+        
+                        atualizaDomPedido();
+                        document.querySelector(`select#B${idItem}`).selectedIndex = 0;
+                        itemMetade = [];
+                        footerItens()
+                        
+                    }
+                })
+            } else {
+                Swal.fire({
+                    icon: 'success',
+                    title: `Adicione a outra metade com o mesmo tamanho ${itemMetade[0].size}`,
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+                // Toast.fire({
+                //     icon: 'warning',
+                //     // title: `Adicione a outra metade com o mesmo tamanho ${itemMetade[0].size}`,
+                //     showConfirmButton: false,
+                //     timer: 5500
+                // })
+            }
+        }
+
+        function quantidadeItem(index) {
+            qtItem = document.querySelectorAll('input[name=quantidadePorItem]')[index].value
+            if (qtItem != itensComanda[index].quantity) {
+                itensComanda[index].quantity = parseInt(qtItem);
+                itensComanda[index].price = itensComanda[index].priceHome
+                itensComanda[index].additional.forEach(el => {
+                    itensComanda[index].price += el.price
+                });
+                if (itensComanda[index].edges.price) {
+                    itensComanda[index].price += itensComanda[index].edges.price
+                }
+                itensComanda[index].price *= parseInt(qtItem);
+                atualizaDomPedido();
+            }
+        }
+
+        function removeItemComanda(index) {
+            swalWithBootstrapButtons.fire({
+                title: `Deseja remover ${itensComanda[index].name +' '+ itensComanda[index].half}?`,
+                text: "",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Sim',
+                cancelButtonText: 'Não',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.value) {
+                    itensComanda.splice(index, 1)
+                    Swal.fire({
+                        icon: 'success',
+                        title: `Item removido`,
+                        showConfirmButton: false,
+                        timer: 1500
+                    })
+                    // Toast.fire({
+                    //     icon: 'success',
+                    //     // title: 'Item removido',
+                    //     showConfirmButton: false,
+                    //     timer: 5500
+                    // })
+                    atualizaDomPedido();
+                }
+            })
+        }
+
+        function footerItens() {
+            document.querySelector(`.itensfooter`).innerHTML = '';
+            const footer = document.querySelector('footer');
+            const btnAdiciona = document.querySelectorAll(`button.btnAdiciona`);
+
+            if (itemMetade.length > 0) {
+                document.querySelector(`.itensfooter`).innerHTML += `
+                    <h6>Esperando outra metade</h6>
+                    ${itemMetade[0].name} - ${itemMetade[0].size} - ${itemMetade[0].price.toLocaleString('pt-br', {minimumFractionDigits: 2})} 
+                    <button class="btn btn-outline-danger rounded-pill btn-sm ml-auto" onclick="removeItemMetade()"><i class="fas fa-eraser"></i></button>
+                `
+                footer.classList.add('show');
+            } else {
+                btnAdiciona.forEach(el => {
+                    el.style.display = 'block'
+                });
+                footer.classList.remove('show');
+            }
+        }
+
+        function removeItemMetade() {
+            Swal.fire({
+                icon: 'success',
+                title: `Metade ${itemMetade[0].name} removida`,
+                showConfirmButton: false,
+                timer: 1500
+            })
+            // Toast.fire({
+            //     icon: 'success',
+            //     // title: `Metade ${itemMetade[0].name} removida`,
+            //     showConfirmButton: false,
+            //     timer: 5500
+            // })
+            $(`select.tamanhoItem option[value='0']`).prop("selected", true);
+            $('select.tamanhoItem').prop("disabled", false);
+            itemMetade = []
+            footerItens()
+        }
+
+        function getDomCliente() {
+            return {
+                name : document.querySelector('input[name="cliente"]').value,
+                district : document.querySelector('input[name="endBairro"]').value,
+                street : document.querySelector('input[name="endRua"]').value,
+                number : document.querySelector('input[name="endNum"]').value,
+                cep: '',
+                cellphone: document.querySelector('input[name="telCliente"]').value.replace('(', '').replace(')', '').replace(' ', '').replace('-', ''),
+                id: document.querySelector('input[name="idCliente"]').value || null
+            }
+        }
+
+        function getDomNovaComanda() {
+            valorTotal = 0; 
+            itensComanda.forEach((el, ind) => {
+                const {price, edges, additional} = el
+                valorTotal += parseFloat(price)
+            });
+            return {
+                table : 'Pedido',
+                increase : document.querySelector('input[id="cartao"]').checked ? 2 : 0,
+                totalValue : document.querySelector('input[id="cartao"]').checked ? 2 + valorTotal : 0 + valorTotal,
+                orderValue : valorTotal,
+                items: itensComanda,
+                creationDate: new Date(),
+                observation : document.querySelector('textarea[name="obsComanda"]').value,
+                client: getDomCliente(),
+                payment: {
+                    card : document.querySelector('input[id="cartao"]').checked,
+                    money: document.querySelector('input[id="dinheiro"]').checked
+                },
+                user: { name: 'Clientes', username: 'clientes' }
+            }
+        }
+
+        document.querySelector('form#novoPedido').addEventListener('submit', (ev) => {
+            ev.preventDefault();
+
+            $('.btnSalvaPedido').prop("disabled", true);
+            // document.querySelector('.btnSalvaPedido').innerHTML = `
+            //     <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            //     Carregando...
+            // `
+
+            $.ajax({
+                url: linkApi+'/order/set',
+                type: 'POST',
+                headers: {
+                    'x-access-token': token
+                },
+                data: getDomNovaComanda(),
+                success: function(success) {
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: `Código: ${success.codigo}`,
+                        text: `Seu pedido chegará em torno de ${moment(new Date(new Date().setHours(new Date().getHours() + 1))).format('LT')}!`,
+                        footer: 'Guarde o codigo até receber seu lanche ;)'
+                    })
+
+                    itensComanda = [];
+                    ev.target.reset();
+                    atualizaDomPedido();
+                    document.querySelector('input[name="cliente"]').disabled = true;
+                    document.querySelector('input[name="endBairro"]').disabled = true;
+                    document.querySelector('input[name="endRua"]').disabled = true;
+                    document.querySelector('input[name="endNum"]').disabled = true;
+                    $('.btnSalvaPedido').prop("disabled", false);
+                    // document.querySelector('.btnSalvaPedido').innerHTML = 'Enviar'
+                    socket.emit('orderChange');
+                    socket.emit('emitBeep');
+
+                },
+                error: function (error) {
+                    Toast.fire({
+                        icon: 'error',
+                        title: error.responseJSON.message,
+                        showConfirmButton: false,
+                        timer: 3000
+                    })
+                    $('.btnSalvaPedido').prop("disabled", false);
+                    // document.querySelector('.btnSalvaPedido').innerHTML = 'Enviar'
+                }
+            });
+        });
+
+        function removeAcento(text) {       
+            text = text.toLowerCase();                                                         
+            text = text.replace(new RegExp('[ÁÀÂÃ]','gi'), 'a');
+            text = text.replace(new RegExp('[ÉÈÊ]','gi'), 'e');
+            text = text.replace(new RegExp('[ÍÌÎ]','gi'), 'i');
+            text = text.replace(new RegExp('[ÓÒÔÕ]','gi'), 'o');
+            text = text.replace(new RegExp('[ÚÙÛ]','gi'), 'u');
+            text = text.replace(new RegExp('[Ç]','gi'), 'c');
+            text = text.replace(new RegExp('[()]','gi'), '');
+            text = text.replace(/\s/g, '');
+            return text;                 
+        }
+
+        function verificaUsuario(input) {
+            if (input.value.length == 15) {
+                const telefone = input.value.replace('(', '').replace(')', '').replace(' ', '').replace('-', '')
+                $.ajax({
+                    url: linkApi+`/client/getByCellphone/${ telefone }`,
+                    type: 'GET',
+                    headers: {
+                        'x-access-token': token
+                    },
+                    success: function(cliente) {
+                        document.querySelector('input[name="cliente"]').value = cliente.name
+                        document.querySelector('input[name="endRua"]').value = cliente.street
+                        document.querySelector('input[name="endNum"]').value = cliente.number
+                        document.querySelector('input[name="idCliente"]').value = cliente._id
+                        document.querySelector('input[name="endBairro"]').value = cliente.district
+                        document.querySelector('input[name="cliente"]').disabled = false;
+                        document.querySelector('input[name="endRua"]').disabled = false;
+                        document.querySelector('input[name="endBairro"]').disabled = false;
+                        document.querySelector('input[name="endNum"]').disabled = false;
+                    },
+                    error: function (error) {
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Primeiro pedido?',
+                            text: 'Preencha todos os dados',
+                            showConfirmButton: false,
+                            timer: 5500
+                        })
+
+                        document.querySelector('input[name="endBairro"]').disabled = false;
+                        document.querySelector('input[name="cliente"]').disabled = false;
+                        document.querySelector('input[name="endRua"]').disabled = false;
+                        document.querySelector('input[name="endNum"]').disabled = false;
+                    }
+                });
+            }
+        }
+
+        $(document).ready(function () { 
+            var $telefone = $("#telCliente");
+            $telefone.mask('(00) 00000-0000', {reverse: false});
+        });
+
+        function id( el ) {
+            return document.getElementById( el );
+        }
+        function menos( id_qnt ) {
+            var qnt = parseInt( id( id_qnt ).value );
+            if( qnt > 1 )
+                id( id_qnt ).value = qnt - 1; 
+        } 
+        function mais( id_qnt ) {
+            id( id_qnt ).value = parseInt( id( id_qnt ).value ) + 1; 
+	    } 
+    </script>
+</body>
+</html>
