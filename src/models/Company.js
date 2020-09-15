@@ -32,6 +32,9 @@ const Company = new Schema({
         end: {
             type: Number
         }
+    },
+    link:{
+        type: String
     }
 });
 

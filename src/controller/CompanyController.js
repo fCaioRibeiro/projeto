@@ -5,7 +5,8 @@ exports.save = async(req, res, next) => {
         await companyRepository.save({
             name: req.body.name,
             address: req.body.address,
-            openingHours: req.body.openingHours
+            openingHours: req.body.openingHours,
+            link: req.body.link
         });
 
         res.status(201).send({
