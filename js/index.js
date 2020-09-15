@@ -1,4 +1,4 @@
-var linkApi = 'https://demo.cribeiro.app';
+var linkApi = 'http://localhost:3000';
 var token = JSON.parse( localStorage.getItem('token'))
 var usuario = JSON.parse( localStorage.getItem('usuario'))
 dadosEmpresa.fetch();
