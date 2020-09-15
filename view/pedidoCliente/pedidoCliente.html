@@ -255,7 +255,8 @@
            $('.footer-pedido').hide();
         })
 
-        const linkApi = 'https://demo.cribeiro.app';
+        const a = document.URL.replace('index.html', '');
+        linkApi = a.substr(0,(a.length - 1));
         const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjVmMTM2MjVmNTQxMmQ3MDAxNmEyMzAyZCIsIm5hbWUiOiJDbGllbnRlcyIsInVzZXJuYW1lIjoiY2xpZW50ZXMiLCJyb2xlcyI6WyJVU0VSIl0sImlhdCI6MTU5NTYwNDg5NH0.DkDZK7vCoArmzIxdtL_XWBDn9WsJt3WCfX4n7QGrF3Y';
 
         const socket = io(linkApi);
