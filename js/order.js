@@ -26,14 +26,6 @@ const swalWithBootstrapButtons = Swal.mixin({
 })
 
 function showLista(comandas) {
-    dataFiltro = document.querySelector('input#dataInicioFiltro');
-
-    if (!dataFiltro.value) {
-        dataFiltro = new Date(new Date().setDate(new Date().getDate() - 2)).setHours(0,0,0,0);
-        dataFiltro = new Date(dataFiltro);
-        comandas = comandas.filter(element => new Date(element.creationDate) >= dataFiltro);
-    }
-
     const $lista = document.querySelector('#tbodyListaComandas');
     $lista.innerHTML = '';
     
@@ -400,39 +392,39 @@ function finalizaComanda() {
     })
 }
 
-$('.filtrosAtivo').hide();
-document.querySelector('.filtros').onclick = function () {
-    $('.filtrosAtivo').toggle('fast');
-}
+// $('.filtrosAtivo').hide();
+// document.querySelector('.filtros').onclick = function () {
+//     $('.filtrosAtivo').toggle('fast');
+// }
 
-document.querySelector('.btnFiltrar').onclick = function () {
-    dataFiltro = document.querySelector('input#dataInicioFiltro');
-    dataFiltro = moment(dataFiltro.value).format('L');
-    if (dataFiltro == 'Invalid date') {
-        dataFiltro = ''
-    }
-    statusFiltro = document.querySelector('#statusFiltro');
-    if (statusFiltro.value == 1 && dataFiltro) {
-        showLista(listaComandas.filter(e => !e.endDate && dataFiltro == moment(e.creationDate).format('L')));
+// document.querySelector('.btnFiltrar').onclick = function () {
+//     dataFiltro = document.querySelector('input#dataInicioFiltro');
+//     dataFiltro = moment(dataFiltro.value).format('L');
+//     if (dataFiltro == 'Invalid date') {
+//         dataFiltro = ''
+//     }
+//     statusFiltro = document.querySelector('#statusFiltro');
+//     if (statusFiltro.value == 1 && dataFiltro) {
+//         showLista(listaComandas.filter(e => !e.endDate && dataFiltro == moment(e.creationDate).format('L')));
 
-    } else if (statusFiltro.value == 2 && dataFiltro) {
-        showLista(listaComandas.filter(e => e.endDate && dataFiltro == moment(e.creationDate).format('L')));
+//     } else if (statusFiltro.value == 2 && dataFiltro) {
+//         showLista(listaComandas.filter(e => e.endDate && dataFiltro == moment(e.creationDate).format('L')));
 
-    } else if (statusFiltro.value == 1){
-        showLista(listaComandas.filter(e => !e.endDate));
+//     } else if (statusFiltro.value == 1){
+//         showLista(listaComandas.filter(e => !e.endDate));
 
-    } else if (statusFiltro.value == 2){
-        showLista(listaComandas.filter(e => e.endDate));
+//     } else if (statusFiltro.value == 2){
+//         showLista(listaComandas.filter(e => e.endDate));
 
-    } else if (dataFiltro){
-        showLista(listaComandas.filter(e => dataFiltro == moment(e.creationDate).format('L')));
+//     } else if (dataFiltro){
+//         showLista(listaComandas.filter(e => dataFiltro == moment(e.creationDate).format('L')));
 
-    } else {
-        showLista(listaComandas);
-    }
+//     } else {
+//         showLista(listaComandas);
+//     }
 
-    $('.filtrosAtivo').toggle('fast');
-}
+//     $('.filtrosAtivo').toggle('fast');
+// }
 
 $('#modalVisualiza').on('show.bs.modal', function () {
     document.querySelector('#principalpronta-tab').click();
