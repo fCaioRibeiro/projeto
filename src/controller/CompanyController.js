@@ -6,7 +6,8 @@ exports.save = async(req, res, next) => {
             name: req.body.name,
             address: req.body.address,
             openingHours: req.body.openingHours,
-            link: req.body.link
+            link: req.body.link,
+            expirationData: req.body.expirationData
         });
 
         res.status(201).send({
