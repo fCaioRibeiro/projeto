@@ -1,4 +1,4 @@
-var linkApi = dadosEmpresa.vl.link
+var linkApi = JSON.parse( localStorage.getItem('link'))
 var token = JSON.parse( localStorage.getItem('token'))
 var usuario = JSON.parse( localStorage.getItem('usuario'))
 dadosEmpresa.fetch();

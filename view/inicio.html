@@ -59,6 +59,12 @@
                     </li>
 
                     <li class="nav-item">
+                        <a class="nav-link" href="#" role="tab" aria-selected="false" onclick="sweetValidade(dadosEmpresa.vl)">
+                            <i class="fas fa-key"></i> Verificar licença
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
                         <a class="nav-link text-danger sair" href="#" role="tab" aria-selected="false" onclick="logout()">
                             <i class="fas fa-sign-out-alt"></i> Sair
                         </a>
@@ -112,9 +118,8 @@
     <script src="https://momentjs.com/downloads/moment-with-locales.js"></script>
     <script src="../bibliotecas/storage.js"></script>
     <script src="../js/beep.js"></script>
+    <script src="../js/expirationDate.js"></script>
     <script>
-        verificaValidade(dadosEmpresa.vl);
-
         const Toast = Swal.mixin({
             toast: true,
             position: 'top-end',
@@ -245,6 +250,8 @@
                 });
             }
         });
+
+        verificaValidade(dadosEmpresa.vl);
 
         function copiarLink(a) {
             $(a).attr('href', `https://wa.me/?text=Faça%20seu%20pedido%20através%20do%20link:%20${linkApi}/view/pedidoCliente/pedidoCliente.html`)
