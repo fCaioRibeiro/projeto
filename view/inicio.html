@@ -119,6 +119,7 @@
     <script src="../bibliotecas/storage.js"></script>
     <script src="../js/beep.js"></script>
     <script src="../js/expirationDate.js"></script>
+    <script src="../js/filters.js"></script>
     <script>
         const Toast = Swal.mixin({
             toast: true,
@@ -132,6 +133,23 @@
             }
         })
 
+        // const listaComandas = new Storage({
+        //     st: localStorage,
+        //     key: 'ltC',
+        //     onChange: function (st) {
+        //         showLista(st.vl)
+        //     },
+        //     onFetch: async () => {
+        //         return await $.ajax({
+        //             url: linkApi+'/order/getByLastThreeDays',
+        //             type: 'GET',
+        //             headers: {
+        //                 'x-access-token': token
+        //             },
+        //         });
+        //     }
+        // });
+
         const listaComandas = new Storage({
             st: localStorage,
             key: 'ltC',
@@ -140,7 +158,7 @@
             },
             onFetch: async () => {
                 return await $.ajax({
-                    url: linkApi+'/order/getByLastThreeDays',
+                    url: linkApi+'/order/list',
                     type: 'GET',
                     headers: {
                         'x-access-token': token

@@ -28,9 +28,10 @@ const swalWithBootstrapButtons = Swal.mixin({
 function showLista(comandas) {
     const $lista = document.querySelector('#tbodyListaComandas');
     $lista.innerHTML = '';
+    let listaComandasFiltrada = filtraComandas(comandas)
     
-    if (Array.isArray(comandas) && comandas.length > 0) {
-        comandas.forEach((e, ind) => {
+    if (Array.isArray(listaComandasFiltrada) && listaComandasFiltrada.length > 0) {
+        listaComandasFiltrada.forEach((e, ind) => {
             if (e.endDate) {
                 e.status = 'Finalizada'
                 bg = '#ffc107'
