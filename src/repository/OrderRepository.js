@@ -52,5 +52,5 @@ exports.getByLastThreeDays = async() => {
     moment.locale('pt-br');
     let ordersFromDB = await Order.find({exclusionDate: ''});
     console.log(moment().subtract(3, 'days').format('L'));
-    return ordersFromDB.filter(el => moment(el.creationDate).format('L') > moment().subtract(3, 'days').format('L'));
+    return ordersFromDB.filter(el => moment(el.creationDate) > moment().subtract(3, 'days'));
 };
