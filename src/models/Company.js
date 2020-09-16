@@ -35,6 +35,9 @@ const Company = new Schema({
     },
     link:{
         type: String
+    },
+    expirationData: {
+        type: Date
     }
 });
 
