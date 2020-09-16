@@ -140,7 +140,7 @@
             },
             onFetch: async () => {
                 return await $.ajax({
-                    url: linkApi+'/order/list',
+                    url: linkApi+'/order/getByLastThreeDays',
                     type: 'GET',
                     headers: {
                         'x-access-token': token
