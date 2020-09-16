@@ -239,6 +239,7 @@
             key: 'dEmp',
             onChange: function (st) {
                 carregaDadosEmpresa(st.vl)
+                verificaValidade(st.vl);
             },
             onFetch: async () => {
                 return await $.ajax({
@@ -250,8 +251,6 @@
                 });
             }
         });
-
-        verificaValidade(dadosEmpresa.vl);
 
         function copiarLink(a) {
             $(a).attr('href', `https://wa.me/?text=Faça%20seu%20pedido%20através%20do%20link:%20${linkApi}/view/pedidoCliente/pedidoCliente.html`)

@@ -18,7 +18,6 @@ function sweetValidade(ev) {
             text: 'Verifique sua licença!',
         }
     }
-    console.log(frase);
 
     Swal.fire({
         icon: frase.icon,
